@@ -1,9 +1,10 @@
-package com.soriole.wallet.sqrapp.dash;
+package com.soriole.wallet.sqrapp.omni;
 
 import com.soriole.wallet.lib.ByteUtils;
 import com.soriole.wallet.lib.KeyGenerator;
 import com.soriole.wallet.lib.exceptions.ValidationException;
 import com.soriole.wallet.sqrapp.CryptoCurrency;
+import org.bitcoinj.params.MainNetParams;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.slf4j.Logger;
@@ -13,18 +14,18 @@ import org.web3j.utils.Numeric;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
-public class Dash implements CryptoCurrency {
-    private static final Logger log = LoggerFactory.getLogger(Dash.class);
+public class Omni implements CryptoCurrency {
+    private static final Logger log = LoggerFactory.getLogger(Omni.class);
     public static final X9ECParameters curve = SECNamedCurves.getByName("secp256k1");
-    public static final String SEED_PREFIX = "Dash seed";
+    public static final String SEED_PREFIX = "Omni seed";
 
-    private byte networkVersion = 0x4c;
-    private byte privateKeyPrefix = (byte) 0xcc;
+    private byte networkVersion = (byte) 0x73;
+    private byte privateKeyPrefix = (byte) 0xf3;
 
     private SecureRandom random = new SecureRandom();
     private KeyGenerator keyGenerator;
 
-    public Dash() {
+    public Omni() {
         keyGenerator = new KeyGenerator(curve, SEED_PREFIX);
     }
 
@@ -196,5 +197,4 @@ public class Dash implements CryptoCurrency {
             }
         }
     }
-
 }
