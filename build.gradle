@@ -1,7 +1,17 @@
-group 'com.soriole.wallet'
-version '0.1'
+group 'com.soriole'
+version '0.2'
 
 apply plugin: 'java'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+    }
+}
 
 sourceCompatibility = 1.8
 
@@ -23,3 +33,77 @@ dependencies {
     compile group: 'org.whispersystems', name: 'curve25519-java', version: '0.2.3'
     compile group: 'com.wavesplatform', name: 'wavesj', version: '0.2'
 }
+
+/**
+ * Task to create jarFile that can be used as dependency in another projects
+ *  and to install it to local maven repository
+ */
+
+task libraryJar(type: Jar) {
+    from sourceSets.main.output
+}
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+    archives libraryJar
+}
+
+apply plugin: 'maven-publish'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact libraryJar
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+apply plugin: "com.jfrog.artifactory"
+artifactory {
+    if (project.hasProperty('contextUrl') &&
+            project.hasProperty('artifactory_user') &&
+            project.hasProperty('artifactory_password'))
+    {
+        contextUrl = "${artifactory_contextUrl}"
+
+    }else{
+        logger.warn "Artifactory deployment is skipped due to missing user data."
+        logger.quiet "Please add user data to `gradle.properties` file if you want to publish changes."
+        return -1;
+
+    }
+    publish {
+
+        repository {
+            repoKey = 'release'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications('mavenJava')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'libs-release'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}
+artifactoryPublish { dependsOn sourcesJar,libraryJar,javadocJar }
+
+

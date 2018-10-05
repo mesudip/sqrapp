@@ -11,7 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.utils.Numeric;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 
 public class Omni implements CryptoCurrency {
@@ -197,4 +204,25 @@ public class Omni implements CryptoCurrency {
             }
         }
     }
+
+    BigInteger getBalance(String omni_address) throws IOException {
+        URL url = new URL("http://omniexplorer.info/ask.aspx?api=getbalance&prop=1&address=1EXoDusjGwvnjZUyKkxZ4UHEf77z6A5S4P");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        if (conn.getResponseCode() != 200) {
+            throw new IOException("Failed : HTTP error code : "
+                    + conn.getResponseCode());
+        }
+        InputStream stream = conn.getInputStream();
+        byte[] data = new byte[100];// it's not possible that the retuned value will be more than 100 bytes
+        int length=stream.read(data);
+        String value=new String(data,0,length);
+        System.out.println(value);
+        //read the response and cast it to string (json string)
+        return new BigInteger("001");
+    }
+    static public void main(String[] args) throws IOException {
+        new Omni().getBalance("my address");
+    }
+
+
 }
